@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+from models import Base
+
 load_dotenv()
 
 
@@ -29,10 +31,14 @@ def getDB():
         db.close()
 
 
+def initDB():
+    Base.metadata.create_all(bind=engine)
+
+
 # REDIS CONNECTION
 redis_client = redis.Redis(
     host=os.getenv("REDIS_HOST"),
-    port=int(os.getenv("REDIS_PORT", 6379)),
+    port=int(os.getenv("REDIS_PORT", 6379)),  # noqa: PLW1508
     username=os.getenv("REDIS_USERNAME"),
     password=os.getenv("REDIS_PASSWORD"),
     decode_responses=True,
