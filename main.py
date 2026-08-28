@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
+from typing import Annotated
 
 from fastapi import Depends, FastAPI
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from database import (
@@ -40,6 +42,28 @@ def home():
     return {"message": "API is operational."}
 
 
+class NoticesModel(BaseModel):
+    page: int = Field(default=1, ge=1)
+    page_size: int = Field(default=10, ge=1, le=100)
+
+
 @app.get("/notices")
-def notices(db: Session = Depends(get_db)):
-    return {"notices": db.query(Notice).order_by(Notice.notice_id.desc()).all()}
+def notices(
+    pasignation: Annotated[NoticesModel, Depends()], db: Session = Depends(get_db)
+):
+    total = db.query(Notice).count()
+
+    notices = (
+        db.query(Notice)
+        .order_by(Notice.notice_id.desc())
+        .offset((pasignation.page - 1) * pasignation.page_size)
+        .limit(pasignation.page_size)
+        .all()
+    )
+    return {
+        "page": pasignation.page,
+        "page_size": pasignation.page_size,
+        "total": total,
+        "total_pages": (total + pasignation.page_size - 1) // pasignation.page_size,
+        "notices": notices,
+    }
