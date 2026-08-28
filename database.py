@@ -22,7 +22,7 @@ engine = create_engine(
 SessionLocal = sessionmaker(bind=engine, autoflush=False)
 
 
-def getDB():
+def get_db():
     db = SessionLocal()
     try:
         yield db
