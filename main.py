@@ -1,8 +1,17 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
+from sqlalchemy.orm import Session
 
-from database import SessionLocal, check_redis_connection, engine, initDB, redis_client
+from database import (
+    SessionLocal,
+    check_redis_connection,
+    engine,
+    get_db,
+    initDB,
+    redis_client,
+)
+from models import Notice
 from scraper import run_scraper
 
 
@@ -29,3 +38,8 @@ app = FastAPI(title="TU NOTICE TRACKER", lifespan=lifespan)
 @app.get("/")
 def home():
     return {"message": "API is operational."}
+
+
+@app.get("/notices")
+def notices(db: Session = Depends(get_db)):
+    return {"notices": db.query(Notice).order_by(Notice.notice_id.desc()).all()}
