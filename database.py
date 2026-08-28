@@ -23,7 +23,6 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False)
 
 
 def getDB():
-
     db = SessionLocal()
     try:
         yield db
