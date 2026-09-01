@@ -49,7 +49,8 @@ class NoticesModel(BaseModel):
 
 @app.get("/notices")
 def notices(
-    pasignation: Annotated[NoticesModel, Depends()], db: Session = Depends(get_db)
+    pasignation: Annotated[NoticesModel, Depends()],
+    db: Annotated[Session, Depends(get_db)],
 ):
     total = db.query(Notice).count()
 

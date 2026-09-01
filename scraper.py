@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 import httpx
 from bs4 import BeautifulSoup
 from redis import Redis
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from models import Notice
@@ -117,9 +118,9 @@ def save_new_notices(redis_client: Redis, db: Session, notices: list[dict]):
             saved_posts.append(notice)
 
             print(f"Saved new notice: {item['id']} - {item['title']}")
-        except Exception:
+        except SQLAlchemyError as e:
             db.rollback()
-            print(f"Failed to save notice: {item['id']} - {item['title']}")
+            print(f"Failed to save notice: {item['id']} - {item['title']}: {e}")
     return saved_posts
 
 
