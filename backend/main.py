@@ -1,10 +1,6 @@
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-from fastapi import Depends, FastAPI
-from pydantic import BaseModel, Field
-from sqlalchemy.orm import Session
-
 from database import (
     SessionLocal,
     check_redis_connection,
@@ -13,8 +9,11 @@ from database import (
     initDB,
     redis_client,
 )
+from fastapi import Depends, FastAPI
 from models import Notice
+from pydantic import BaseModel, Field
 from scraper import run_scraper
+from sqlalchemy.orm import Session
 
 
 @asynccontextmanager
@@ -23,10 +22,10 @@ async def lifespan(app: FastAPI):
     check_redis_connection()
 
     db = SessionLocal()
-    try:
-        run_scraper(redis_client=redis_client, db=db)
-    finally:
-        db.close()
+    # try:
+    #     run_scraper(redis_client=redis_client, db=db)
+    # finally:
+    #     db.close()
 
     yield
 

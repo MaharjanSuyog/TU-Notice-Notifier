@@ -6,11 +6,10 @@ from zoneinfo import ZoneInfo
 
 import httpx
 from bs4 import BeautifulSoup
+from models import Notice
 from redis import Redis
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-
-from models import Notice
 
 BASE_URL = "https://iost.tu.edu.np"
 NOTICES_URL = f"{BASE_URL}/notices"

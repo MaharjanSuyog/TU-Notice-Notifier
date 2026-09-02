@@ -2,10 +2,9 @@ import os
 
 import redis
 from dotenv import load_dotenv
+from models import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-from models import Base
 
 load_dotenv()
 
