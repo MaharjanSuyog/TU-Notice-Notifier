@@ -61,8 +61,9 @@ def notices(
         query = query.join(Notice.tags).filter(Tag.name == pasignation.tag)
     elif pasignation.tags:
         tag_list = [t.strip() for t in pasignation.tags.split(",") if t.strip()]
-        query = query.join(Notice.tags).filter(
-            Tag.name.in_(tag_list)
+        query = (
+            query.join(Notice.tags)
+            .filter(Tag.name.in_(tag_list))
             .group_by(Notice.id)
             .having(func.count(func.distinct(Tag.id)) == len(tag_list))
         )

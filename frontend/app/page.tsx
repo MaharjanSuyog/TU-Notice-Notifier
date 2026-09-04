@@ -2,41 +2,32 @@
 import { useState, useEffect } from "react";
 import Card from "@/components/Card";
 import Pagination from "@/components/Pagination";
-import type { Notice } from "@/types/notice";
-
-type NoticeResponse = {
-	page: number;
-	page_size: number;
-	total: number;
-	total_pages: number;
-	notices: Notice[];
-};
+import TagFilter from "@/components/TagFilter";
+import { useNoticeFilters } from "@/hooks/useNoticeFilters";
+import { fetchNotices, NoticeResponse } from "@/utils/api";
 
 export default function Home() {
-	const [page, setPage] = useState(1);
+	const { activeTags, page, toggleTag, clearTags, setPage } =
+		useNoticeFilters();
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const [noticeData, setNoticeData] = useState<NoticeResponse | null>(null);
 
 	const pageSize = 10;
-
-	const [noticeData, setNoticeData] = useState<NoticeResponse | null>(null);
 
 	useEffect(() => {
 		const controller = new AbortController();
 
-		async function fetchNotices() {
+		async function loadNotices() {
 			try {
 				setLoading(true);
 				setError(null);
 
-				const response = await fetch(
-					`/api/notices?page=${page}&page_size=${pageSize}`,
-					{ signal: controller.signal },
+				const data = await fetchNotices(
+					{ page, pageSize, tags: activeTags },
+					controller.signal,
 				);
 
-				if (!response.ok) throw new Error("Failed to fetch notices");
-
-				const data: NoticeResponse = await response.json();
 				setNoticeData(data);
 			} catch (err) {
 				if (err instanceof DOMException && err.name === "AbortError") return;
@@ -47,9 +38,9 @@ export default function Home() {
 			}
 		}
 
-		fetchNotices();
+		loadNotices();
 		return () => controller.abort();
-	}, [page]);
+	}, [page, activeTags]);
 
 	const handlePageChange = (newPage: number) => {
 		setPage(newPage);
@@ -64,7 +55,13 @@ export default function Home() {
 					</h1>
 					<span className="font-mono text-muted">watching: iost.tu.edu.np</span>
 				</span>
-				<div className="mb-10">
+
+				<TagFilter
+					activeTags={activeTags}
+					onClear={clearTags}
+					onToggle={toggleTag}
+				/>
+				<div className="mb-10 ">
 					{loading || noticeData === null ? (
 						<p className="font-mono text-muted">Loading.... </p>
 					) : error ? (
@@ -80,7 +77,7 @@ export default function Home() {
 									onPageChange={handlePageChange}
 								/>
 							)}
-							<div className="flex flex-col divide-y divide-muted/30 gap-2">
+							<div className="flex flex-col divide-y divide-muted/30 gap-2 mt-10">
 								{noticeData.notices.map((notice) => (
 									<Card key={notice.notice_id} notice={notice} />
 								))}
