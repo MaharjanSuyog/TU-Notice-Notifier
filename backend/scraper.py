@@ -6,10 +6,12 @@ from zoneinfo import ZoneInfo
 
 import httpx
 from bs4 import BeautifulSoup
-from models import Notice
+from models import Notice, Tag
 from redis import Redis
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+from utils.classify import classify
 
 BASE_URL = "https://iost.tu.edu.np"
 NOTICES_URL = f"{BASE_URL}/notices"
@@ -100,6 +102,14 @@ def save_new_notices(redis_client: Redis, db: Session, notices: list[dict]):
     saved_posts = []
 
     for item in notices:
+        tag_names = classify(item["title"])
+
+        tags = []
+        if tag_names:
+            tags = (
+                db.execute(select(Tag).where(Tag.name.in_(tag_names))).scalars().all()
+            )
+
         notice = Notice(
             notice_id=item["id"],
             title=item["title"],
@@ -107,11 +117,12 @@ def save_new_notices(redis_client: Redis, db: Session, notices: list[dict]):
             published_date=datetime.strptime(item["date"], "%Y-%m-%d").replace(
                 tzinfo=ZoneInfo("Asia/Kathmandu")
             ),
+            tags=tags,
         )
         try:
             db.add(notice)
             db.commit()
-
+            db.refresh(Notice)
             cache_notice_id(redis_client, item["id"])
 
             saved_posts.append(notice)
