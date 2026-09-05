@@ -23,6 +23,10 @@ services:
       - REDIS_PORT
       - REDIS_USERNAME
       - REDIS_PASSWORD
+      - BREVO_API_URL
+      - BREVO_API_KEY
+      - SENDER_EMAIL
+      - SENDER_NAME
   frontend:
     build:
       context: ./frontend
