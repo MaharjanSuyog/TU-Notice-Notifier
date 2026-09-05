@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from typing import Annotated
 
+import httpx
 from database import (
     SessionLocal,
     check_redis_connection,
@@ -89,3 +90,19 @@ def notices(
 def list_tags(db: Annotated[Session, Depends(get_db)]):
     used = db.query(Tag.name).join(Notice.tags).distinct().order_by(Tag.name).all()
     return {"tags": [t[0] for t in used]}
+
+
+# @app.get("/web")
+# def web():
+#     httpx.post(
+#         "https://discord.com/api/webhooks/1545747401925722202/VYMcNe_POvTsloqaDTcPznVxlr4xGnA5C7w0GNpr5QUWQz-yZB0naDA_DCh3NhSzMm2C",
+#         json={
+#             "embeds": [
+#                 {
+#                     "title": "weeeeee",
+#                     "url": "https://localhost:3000",
+#                     "color": "3447003",
+#                 }
+#             ]
+#         },
+#     )
