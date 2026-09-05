@@ -32,7 +32,7 @@ export async function fetchNotices(
 }
 
 export async function fetchTags(signal?: AbortSignal): Promise<TagResponse> {
-	const response = await fetch(`/api/tags`, { signal });
+	const response = await fetch(`/api/notices/tags`, { signal });
 
 	if (!response.ok) throw new Error("Failed to fetch tags");
 
