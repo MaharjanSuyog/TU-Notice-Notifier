@@ -5,10 +5,15 @@ import Pagination from "@/components/Pagination";
 import TagFilter from "@/components/TagFilter";
 import { useNoticeFilters } from "@/hooks/useNoticeFilters";
 import { fetchNotices, NoticeResponse } from "@/utils/api";
+import LoginButton from "@/components/LoginButton";
+import { useAuth } from "@/utils/AuthContext";
 
 export default function Home() {
 	const { activeTags, page, toggleTag, clearTags, setPage } =
 		useNoticeFilters();
+
+	const { user } = useAuth();
+
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [noticeData, setNoticeData] = useState<NoticeResponse | null>(null);
@@ -47,7 +52,10 @@ export default function Home() {
 		window.scrollTo({ top: 0, behavior: "smooth" });
 	};
 	return (
-		<div className="flex flex-col flex-1 items-center mt-20 font-sans dark:bg-slate min-h-screen">
+		<div className="flex flex-col flex-1 items-center mt-14 font-sans dark:bg-slate min-h-screen">
+			<header className="flex items-end justify-end w-full mr-10 ">
+				<LoginButton />
+			</header>
 			<main className="w-3/4 flex flex-col gap-10">
 				<span>
 					<h1 className="font-handwritten font-extrabold text-8xl ">
