@@ -1,7 +1,17 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import UUID, Column, DateTime, ForeignKey, Integer, String, Table, text
+from sqlalchemy import (
+    UUID,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Table,
+    text,
+)
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
 
 Base = declarative_base()
@@ -53,3 +63,24 @@ class Notice(Base):
     tags: Mapped[list["Tag"]] = relationship(
         secondary=notice_tags, back_populates="notices"
     )
+
+
+class Subscriber(Base):
+    __tablename__ = "subscribers"
+
+    id: Mapped[str] = mapped_column(
+        UUID, primary_key=True, server_default=text("gen_random_uuid()")
+    )
+    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    google_id: Mapped[str] = mapped_column(
+        String, unique=True, index=True, nullable=False
+    )
+    status: Mapped[str] = mapped_column(String, default="active")
+    unsubscribe_token: Mapped[str] = mapped_column(
+        String, unique=True, server_default=text("gen_random_uuid()")
+    )
+    subscribed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(tz=ZoneInfo("Asia/Kathmandu")),
+    )
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
