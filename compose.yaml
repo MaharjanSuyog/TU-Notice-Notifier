@@ -27,6 +27,11 @@ services:
       - BREVO_API_KEY
       - SENDER_EMAIL
       - SENDER_NAME
+      - ENV
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET
+      - GOOGLE_CLIENT_URI
+      - FRONTEND_URL
   frontend:
     build:
       context: ./frontend
