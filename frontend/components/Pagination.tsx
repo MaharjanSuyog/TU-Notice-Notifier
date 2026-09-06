@@ -1,5 +1,3 @@
-"use client";
-
 type PaginationProps = {
 	page: number;
 	totalPages: number;
