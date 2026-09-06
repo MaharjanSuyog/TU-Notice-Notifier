@@ -6,7 +6,7 @@ import {
 	Plus_Jakarta_Sans,
 } from "next/font/google";
 import "./globals.css";
-
+import { AuthProvider } from "@/utils/AuthContext";
 const manrope = Manrope({
 	subsets: ["latin"],
 	variable: "--font-manrope",
@@ -40,7 +40,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 		<html
 			lang="en"
 			className={`${manrope.variable} ${spaceMono.variable} ${caveat.variable} ${pjs.variable} h-full antialiased`}>
-			<body className="min-h-full flex flex-col">{children}</body>
+			<body className="min-h-full flex flex-col">
+				<AuthProvider>{children}</AuthProvider>
+			</body>
 		</html>
 	);
 }
