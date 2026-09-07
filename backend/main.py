@@ -1,42 +1,28 @@
-import os
 from contextlib import asynccontextmanager
 
-import httpx
 from database import (
-    SessionLocal,
     check_redis_connection,
     engine,
-    get_db,
     initDB,
-    redis_client,
 )
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import auth, notices
-from scraper import run_scraper
+from scheduler import start_scheduler, stop_scheduler
 
 load_dotenv()
-
-BREVO_API_URL = os.getenv("BREVO_API_URL")
-BREVO_API_KEY = os.getenv("BREVO_API_KEY")
-SENDER_EMAIL = os.getenv("SENDER_EMAIL")
-SENDER_NAME = os.getenv("SENDER_NAME", "TU NOTIFIER")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     initDB()
     check_redis_connection()
-    # mail("test-bfd9tb81h@srv1.mail-tester.com", "HELLO", "https://youtube.com")
-    # db = SessionLocal()
-    # try:
-    #     run_scraper(redis_client=redis_client, db=db)
-    # finally:
-    #     db.close()
+    start_scheduler()
 
     yield
 
+    stop_scheduler()
     engine.dispose()
     print("Application shutting down")
 
@@ -74,29 +60,3 @@ app.include_router(auth.router)
 #             ]
 #         },
 #     )
-
-
-def mail(to_email: str, notice_title: str, notice_link: str) -> dict:
-    payload = {
-        "sender": {"name": SENDER_NAME, "email": SENDER_EMAIL},
-        "to": [{"email": to_email}],
-        "subject": f"New IOST notice: {notice_title}",
-        "htmlContent": f"""
-            <p>A new notice was published on IOST's notice board:</p>
-            <p><strong>{notice_title}</strong></p>
-            <p><a href="{notice_link}">Read the full notice</a></p>
-            <p style="color:#888;font-size:12px">
-                You're receiving this because you subscribed to Sanket.
-            </p>
-        """,
-    }
-
-    headers = {
-        "accept": "application/json",
-        "api-key": BREVO_API_KEY,
-        "content-type": "application/json",
-    }
-
-    response = httpx.post(BREVO_API_URL, json=payload, headers=headers)
-    response.raise_for_status()
-    return response.json()
