@@ -122,7 +122,7 @@ def save_new_notices(redis_client: Redis, db: Session, notices: list[dict]):
         try:
             db.add(notice)
             db.commit()
-            db.refresh(Notice)
+            db.refresh(notice)
             cache_notice_id(redis_client, item["id"])
 
             saved_posts.append(notice)
