@@ -24,9 +24,8 @@ export function useNoticeFilters() {
 					params.set("tags", next.tags.join(","));
 				} else {
 					params.delete("tags");
+					if (params.get("page")) params.delete("page");
 				}
-
-				params.set("page", "1");
 			}
 
 			if (next.page !== undefined) {
