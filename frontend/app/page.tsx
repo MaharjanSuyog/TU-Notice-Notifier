@@ -9,7 +9,6 @@ import { fetchNotices, NoticeResponse } from "@/utils/api";
 import LoginButton from "@/components/LoginButton";
 import { useAuth } from "@/utils/AuthContext";
 
-// 1. Move the logic & UI into a child component
 function NoticeFeed() {
 	const { activeTags, page, toggleTag, clearTags, setPage } =
 		useNoticeFilters();
@@ -108,7 +107,6 @@ function NoticeFeed() {
 	);
 }
 
-// 2. Export the main Page component wrapped in Suspense
 export default function Home() {
 	return (
 		<Suspense
