@@ -23,8 +23,10 @@ services:
       - REDIS_PORT
       - REDIS_USERNAME
       - REDIS_PASSWORD
-      - BREVO_API_URL
-      - BREVO_API_KEY
+      - GOOGLE_APP_PASSWORD
+      - SMTP_HOST
+      - SMTP_PORT
+      - SMTP_USERNAME
       - SENDER_EMAIL
       - SENDER_NAME
       - ENV

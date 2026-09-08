@@ -8,13 +8,13 @@ from scraper import run_scraper
 logger = logging.getLogger(__name__)
 scheduler = AsyncIOScheduler()
 
-SCRAPE_INTERVAL_MINUTES = 25
+SCRAPE_INTERVAL_MINUTES = 5
 
 
-def scheduled_scrape_job():
+async def scheduled_scrape_job():
     db = SessionLocal()
     try:
-        run_scraper(redis_client=redis_client, db=db)
+        await run_scraper(redis_client=redis_client, db=db)
     except Exception:
         logger.exception("Scheduled scrape failed")
     finally:
