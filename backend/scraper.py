@@ -6,12 +6,13 @@ from zoneinfo import ZoneInfo
 
 import httpx
 from bs4 import BeautifulSoup
-from models import Notice, Tag
+from models import Notice, Subscriber, Tag
 from redis import Redis
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 from utils.classify import classify
+from utils.mail import send_notices_email
 
 BASE_URL = "https://iost.tu.edu.np"
 NOTICES_URL = f"{BASE_URL}/notices"
@@ -183,7 +184,7 @@ def get_new_notices(redis_client: Redis, db: Session):
     return new_notices
 
 
-def run_scraper(redis_client: Redis, db: Session):
+async def run_scraper(redis_client: Redis, db: Session):
     print("Starting notice scraper")
     new_notices = get_new_notices(redis_client, db)
 
@@ -194,4 +195,25 @@ def run_scraper(redis_client: Redis, db: Session):
     saved_posts = save_new_notices(redis_client, db, new_notices)
 
     print(f"Saved {len(saved_posts)} new notice(s)")
+
+    notices_for_email = [
+        {"title": notice.title, "link": urljoin(BASE_URL, notice.href)}
+        for notice in saved_posts
+    ]
+
+    subscribers = db.query(Subscriber).filter(Subscriber.status == "active").all()
+
+    print(f"Sending email to {len(subscribers)} subscriber(s)")
+
+    for subscriber in subscribers:
+        try:
+            await send_notices_email(
+                to_email=subscriber.email,
+                notices=notices_for_email,
+                unsubscribe_token=subscriber.unsubscribe_token,
+            )
+            print(f"Sent notification to {subscriber.email}")
+
+        except Exception as e:
+            print(f"Failed to send notification to {subscriber.email}: {e}")
     return saved_posts
