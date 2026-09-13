@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    environment:
+      - PYTHONUNBUFFERED=1
+      - POSTGRES_URL
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_USERNAME
+      - REDIS_PASSWORD
+      - GOOGLE_APP_PASSWORD
+      - SMTP_HOST
+      - SMTP_PORT
+      - SMTP_USERNAME
+      - SENDER_EMAIL
+      - SENDER_NAME
+      - ENV=production
+      - GOOGLE_CLIENT_ID
+      - GOOGLE_CLIENT_SECRET
+      - GOOGLE_REDIRECT_URI
+      - FRONTEND_URL
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        BACKEND_URL: ${BACKEND_URL}
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=production
+      - BACKEND_URL
+    depends_on:
+      - backend
