@@ -50,7 +50,7 @@ app.include_router(auth.router)
 # @app.get("/web")
 # def web():
 #     httpx.post(
-#         "https://discord.com/api/webhooks/1545747401925722202/VYMcNe_POvTsloqaDTcPznVxlr4xGnA5C7w0GNpr5QUWQz-yZB0naDA_DCh3NhSzMm2C",
+#         "***REMOVED***",
 #         json={
 #             "embeds": [
 #                 {
