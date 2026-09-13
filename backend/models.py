@@ -1,3 +1,4 @@
+import enum
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -6,6 +7,7 @@ from sqlalchemy import (
     Boolean,
     Column,
     DateTime,
+    Enum,
     ForeignKey,
     Integer,
     String,
@@ -31,6 +33,13 @@ notice_tags = Table(
 )
 
 
+class TagKind(str, enum.Enum):
+    PROGRAM = "program"
+    SEMESTER = "semester"
+    CATEGORY = "category"
+    MODIFIER = "modifier"
+
+
 class Tag(Base):
     __tablename__ = "tags"
 
@@ -38,7 +47,12 @@ class Tag(Base):
     name: Mapped[str] = mapped_column(
         String(50), unique=True, nullable=False, index=True
     )
-
+    kind: Mapped[TagKind] = mapped_column(
+        Enum(TagKind, name="tag_kind", values_callable=lambda x: [e.value for e in x]),
+        name="tag_kind",
+        nullable=False,
+        server_default=TagKind.MODIFIER.value,
+    )
     notices: Mapped[list["Notice"]] = relationship(
         secondary=notice_tags, back_populates="tags"
     )

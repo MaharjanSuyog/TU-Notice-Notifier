@@ -1,25 +1,26 @@
 import re
 
-ALLOWED_TAGS = [
-    "exam",
-    "result",
-    "form_fill_up",
-    "syllabus",
-    "academic_calendar",
-    "admission",
-    "routine",
-    "1st_sem",
-    "2nd_sem",
-    "3rd_sem",
-    "4th_sem",
-    "5th_sem",
-    "6th_sem",
-    "7th_sem",
-    "8th_sem",
-    "bsc_csit",
-    "bit",
-]
+TAGS: dict[str, str] = {
+    "bsc_csit": "program",
+    "bit": "program",
+    "1st_sem": "semester",
+    "2nd_sem": "semester",
+    "3rd_sem": "semester",
+    "4th_sem": "semester",
+    "5th_sem": "semester",
+    "6th_sem": "semester",
+    "7th_sem": "semester",
+    "8th_sem": "semester",
+    "exam": "category",
+    "result": "category",
+    "form_fill_up": "category",
+    "syllabus": "category",
+    "admission": "category",
+    "academic_calendar": "category",
+    "routine": "modifier",
+}
 
+ALLOWED_TAGS = TAGS.keys()
 _ROMAN_TO_SEM = {
     "VIII": "8th_sem",
     "VII": "7th_sem",
@@ -42,7 +43,7 @@ _KEYWORD_TAGS = {
     "syllabus": ["syllabus", "curriculum"],
     "admission": ["admission", "entrance"],
     "routine": ["routine", "schedule"],
-    "academic_calender": ["academic calendar"],
+    "academic_calendar": ["academic calendar"],
     "bsc_csit": ["b.sc.csit"],
     "bit": ["bit"],
 }
