@@ -14,9 +14,12 @@ from sqlalchemy import (
     Table,
     text,
 )
-from sqlalchemy.orm import Mapped, declarative_base, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    pass
+
 
 notice_tags = Table(
     "notice_tags",
@@ -25,6 +28,20 @@ notice_tags = Table(
         "notice_id",
         UUID,
         ForeignKey("notices.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column(
+        "tag_id", Integer, ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True
+    ),
+)
+
+subscriber_category_tags = Table(
+    "subscriber_category_tags",
+    Base.metadata,
+    Column(
+        "subscriber_id",
+        UUID,
+        ForeignKey("subscribers.id", ondelete="CASCADE"),
         primary_key=True,
     ),
     Column(
@@ -48,8 +65,11 @@ class Tag(Base):
         String(50), unique=True, nullable=False, index=True
     )
     kind: Mapped[TagKind] = mapped_column(
-        Enum(TagKind, name="tag_kind", values_callable=lambda x: [e.value for e in x]),
-        name="tag_kind",
+        Enum(
+            TagKind,
+            name="tag_kind",
+            values_callable=lambda x: [e.value for e in x],
+        ),
         nullable=False,
         server_default=TagKind.MODIFIER.value,
     )
@@ -98,3 +118,25 @@ class Subscriber(Base):
         default=lambda: datetime.now(tz=ZoneInfo("Asia/Kathmandu")),
     )
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    program_tag_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("tags.id", ondelete="SET NULL"), nullable=True
+    )
+    program_tag: Mapped[Tag | None] = relationship(foreign_keys=[program_tag_id])
+
+    semester_tag_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("tags.id", ondelete="SET NULL"), nullable=True
+    )
+    semester_tag: Mapped[Tag | None] = relationship(foreign_keys=[semester_tag_id])
+
+    category_tags: Mapped[list[Tag]] = relationship(
+        secondary=subscriber_category_tags, lazy="selectin"
+    )
+
+    @property
+    def onboarding_complete(self) -> bool:
+        return (
+            self.program_tag_id is not None
+            and self.semester_tag_id is not None
+            and len(self.category_tags) > 0
+        )
