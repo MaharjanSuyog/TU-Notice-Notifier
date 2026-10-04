@@ -7,6 +7,8 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/utils/AuthContext";
+import Footer from "@/components/Footer";
+
 const manrope = Manrope({
 	subsets: ["latin"],
 	variable: "--font-manrope",
@@ -41,7 +43,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 			lang="en"
 			className={`${manrope.variable} ${spaceMono.variable} ${caveat.variable} ${pjs.variable} h-full antialiased`}>
 			<body className="min-h-full flex flex-col">
-				<AuthProvider>{children}</AuthProvider>
+				<AuthProvider>
+					<main className="flex-1">{children}</main>
+					<Footer />
+				</AuthProvider>
 			</body>
 		</html>
 	);
