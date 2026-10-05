@@ -5,3 +5,9 @@ export type Notice = {
 	href: string;
 	tags: string[];
 };
+
+export type Tags = {
+	program: string[];
+	semester: string[];
+	category: string[];
+};

@@ -17,7 +17,7 @@ TAGS: dict[str, str] = {
     "syllabus": "category",
     "admission": "category",
     "academic_calendar": "category",
-    "routine": "modifier",
+    "routine": "category",
 }
 
 ALLOWED_TAGS = TAGS.keys()

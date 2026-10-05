@@ -1,4 +1,4 @@
-import type { Notice } from "@/types/notice";
+import type { Notice, Tags } from "@/types/notice";
 
 export type NoticeResponse = {
 	page: number;
@@ -9,7 +9,7 @@ export type NoticeResponse = {
 };
 
 export type TagResponse = {
-	tags: string[];
+	tags: Tags;
 };
 export async function fetchNotices(
 	params: { page: number; pageSize: number; tags?: string[] },
@@ -28,6 +28,7 @@ export async function fetchNotices(
 	const response = await fetch(`/api/notices?${query.toString()}`, { signal });
 
 	if (!response.ok) throw new Error("Failed to fetch notices");
+
 	return response.json();
 }
 

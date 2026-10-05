@@ -55,5 +55,15 @@ def notices(
 
 @router.get("/tags")
 def list_tags(db: Annotated[Session, Depends(get_db)]):
-    used = db.query(Tag.name).join(Notice.tags).distinct().order_by(Tag.name).all()
-    return {"tags": [t[0] for t in used]}
+    used = (
+        db.query(Tag.kind, Tag.name)
+        .join(Notice.tags)
+        .distinct()
+        .order_by(Tag.kind, Tag.name)
+        .all()
+    )
+    tags = {}
+    for kind, name in used:
+        tags.setdefault(kind, []).append(name)
+
+    return {"tags": tags}
