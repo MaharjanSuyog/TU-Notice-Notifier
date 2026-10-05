@@ -8,6 +8,37 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 services:
+  postgres:
+    image: "postgres:17"
+    container_name: tu-notice-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tu_notice
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tu_notice"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:7-alpine
+    container_name: tu-notice-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   backend:
     build:
       context: ./backend
@@ -34,6 +65,11 @@ services:
       - GOOGLE_CLIENT_SECRET
       - GOOGLE_REDIRECT_URI
       - FRONTEND_URL
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
   frontend:
     build:
       context: ./frontend
@@ -50,3 +86,7 @@ services:
       - BACKEND_URL
     depends_on:
       - backend
+
+volumes:
+  postgres_data:
+  redis_data:
