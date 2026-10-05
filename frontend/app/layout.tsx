@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import {
 	Manrope,
-	Caveat,
 	Space_Mono,
 	Plus_Jakarta_Sans,
+	Nerko_One,
 } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/utils/AuthContext";
@@ -20,16 +20,15 @@ const pjs = Plus_Jakarta_Sans({
 	weight: ["200", "300", "400", "500", "600", "700", "800"],
 });
 
+const Nerko = Nerko_One({
+	subsets: ["latin"],
+	variable: "--font-nerko-one",
+	weight: ["400"],
+});
 const spaceMono = Space_Mono({
 	subsets: ["latin"],
 	variable: "--font-space-mono",
 	weight: ["400", "700"],
-});
-
-const caveat = Caveat({
-	subsets: ["latin"],
-	variable: "--font-caveat",
-	weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -41,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 	return (
 		<html
 			lang="en"
-			className={`${manrope.variable} ${spaceMono.variable} ${caveat.variable} ${pjs.variable} h-full antialiased`}>
+			className={`${manrope.variable} ${Nerko.variable} ${spaceMono.variable}  ${pjs.variable} h-full antialiased`}>
 			<body className="min-h-full flex flex-col">
 				<AuthProvider>
 					<main className="flex-1">{children}</main>

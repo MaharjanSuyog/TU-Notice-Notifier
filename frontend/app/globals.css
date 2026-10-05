@@ -15,10 +15,11 @@
 	--color-pulse: #3ddc84;
 	--color-urgent: #e0a83e;
 	--color-error: #f56565;
+
 	--font-mono: var(--font-space-mono);
-	--font-handwritten: var(--font-caveat);
-	/* --font-sans: var(--font--manrope); */
+	--font-manrope: var(--font--manrope);
 	--font-sans: var(--font-plus-jartika-sans);
+	--font-nerko: var(--font-nerko-one);
 }
 
 @media (prefers-color-scheme: dark) {
