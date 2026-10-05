@@ -58,11 +58,9 @@ function NoticeFeed() {
 			<header className="flex items-end justify-end w-full mr-10">
 				<LoginButton />
 			</header>
-			<main className="w-3/4 flex flex-col gap-10">
+			<main className="w-4/5 md:w-3/4 flex flex-col gap-10">
 				<span>
-					<h1 className="font-handwritten font-extrabold text-8xl">
-						RECENT NOTICES
-					</h1>
+					<h1 className="font-nerko text-7xl md:text-9xl">RECENT NOTICES</h1>
 					<span className="font-mono text-muted">watching: iost.tu.edu.np</span>
 				</span>
 

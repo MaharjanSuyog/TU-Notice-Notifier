@@ -29,9 +29,9 @@ export default function Card({ notice }: CardProps) {
 					<span className="inline-flex rounded-full h-3 w-3 bg-muted/30"></span>
 				)}
 			</div>
-			<div>
-				<div className="flex gap-5">
-					<span className="font-mono text-muted flex items-center justify-center">
+			<div className="space-y-2">
+				<div className="flex flex-col gap-2 md:flex-row">
+					<span className="font-mono text-muted flex items-center ">
 						{dateDisplay}
 					</span>
 					<div className="flex gap-2">
