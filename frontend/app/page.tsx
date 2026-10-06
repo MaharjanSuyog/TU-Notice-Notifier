@@ -10,8 +10,7 @@ import LoginButton from "@/components/LoginButton";
 import { useAuth } from "@/utils/AuthContext";
 
 function NoticeFeed() {
-	const { activeTags, page, toggleTag, clearTags, setPage } =
-		useNoticeFilters();
+	const { activeTags, page, setTags, setPage } = useNoticeFilters();
 
 	const { user } = useAuth();
 
@@ -64,11 +63,7 @@ function NoticeFeed() {
 					<span className="font-mono text-muted">watching: iost.tu.edu.np</span>
 				</span>
 
-				<TagFilter
-					activeTags={activeTags}
-					onClear={clearTags}
-					onToggle={toggleTag}
-				/>
+				<TagFilter activeTags={activeTags} onChange={setTags} />
 				<div className="mb-10">
 					{loading || noticeData === null ? (
 						<p className="font-mono text-muted">Loading.... </p>

@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from database import get_db
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from models import Notice, Tag
 from pydantic import BaseModel, Field
 from schemas import NoticeOut
@@ -54,7 +54,7 @@ def notices(
 
 
 @router.get("/tags")
-def list_tags(db: Annotated[Session, Depends(get_db)]):
+def list_tags(db: Annotated[Session, Depends(get_db)], response: Response):
     used = (
         db.query(Tag.kind, Tag.name)
         .join(Notice.tags)
@@ -66,4 +66,5 @@ def list_tags(db: Annotated[Session, Depends(get_db)]):
     for kind, name in used:
         tags.setdefault(kind, []).append(name)
 
+    response.headers["Cache-Control"] = "public, max-age=3600"
     return {"tags": tags}

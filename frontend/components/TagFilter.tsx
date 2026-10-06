@@ -6,8 +6,7 @@ import { useEffect, useState } from "react";
 import { Tags } from "@/types/notice";
 type Props = {
 	activeTags: string[];
-	onToggle: (tag: string) => void;
-	onClear: () => void;
+	onChange: (tags: string[]) => void;
 };
 
 const EMPTY_TAGS: Tags = {
@@ -18,13 +17,12 @@ const EMPTY_TAGS: Tags = {
 
 const TAG_ORDER: (keyof Tags)[] = ["program", "semester", "category"];
 
-function formatTag(tag: string) {
-	return tag
-		.replaceAll("_", " ")
-		.replace(/\b\w/g, (char) => char.toUpperCase());
+function formatTag(tag: string, kind: string) {
+	const clean = kind === "semester" ? tag.replace("_sem", "") : tag;
+	return clean.replaceAll("_", " ");
 }
 
-export default function TagFilter({ activeTags, onToggle, onClear }: Props) {
+export default function TagFilter({ activeTags, onChange }: Props) {
 	const [tags, setTags] = useState<Tags>(EMPTY_TAGS);
 
 	useEffect(() => {
@@ -42,18 +40,24 @@ export default function TagFilter({ activeTags, onToggle, onClear }: Props) {
 
 	const isClearActive = activeTags.length === 0;
 
+	const handleSelect = (kind: keyof Tags, tag: string) => {
+		const rest = activeTags.filter((t) => !tags[kind].includes(t));
+		onChange(activeTags.includes(tag) ? rest : [...rest, tag]);
+	};
 	return (
-		<div className="flex flex-wrap gap-2 font-mono text-xs uppercase tracking-wide">
+		<div className="space-y-3 font-mono text-xs uppercase tracking-wide">
 			<button
-				onClick={onClear}
-				className={`flex cursor-pointer items-center gap-1.5 rounded-sm border px-2.5 py-1 transition-colors ${
+				onClick={() => {
+					if (!isClearActive) onChange([]);
+				}}
+				className={`group select-none flex cursor-pointer items-center gap-1.5 rounded-sm border px-2.5 py-1 transition-colors ${
 					isClearActive
 						? "border-foreground/40 text-foreground"
-						: "border-muted/30 text-muted hover:border-muted/60"
+						: "border-muted/30 text-muted hover:border-muted/50 hover:text-foreground"
 				}`}>
 				<span
 					className={`h-1.5 w-1.5 rounded-full bg-foreground transition-opacity ${
-						isClearActive ? "opacity-100" : "opacity-0"
+						isClearActive ? "opacity-100" : "opacity-0 group-hover:opacity-40"
 					}`}
 				/>
 				all
@@ -62,12 +66,17 @@ export default function TagFilter({ activeTags, onToggle, onClear }: Props) {
 				const categoryTags = tags[kind];
 				if (categoryTags.length === 0) return null;
 				return (
-					<div key={kind} className="space-y-2">
-						<p className="font-mono text-xs uppercase tracking-widest text-muted/60">
-							{" "}
-							{kind}
-						</p>
-						<div className="flex flex-wrap gap-2 font-mono text-xs uppercase tracking-wide">
+					<div key={kind} className="flex items-center gap-x-3 gap-y-2">
+						<div className="flex w-20 shrink-0 items-center gap-2">
+							<p className="font-mono text-xs uppercase tracking-widest text-muted/60">
+								{" "}
+								{kind}
+							</p>
+						</div>
+						<div
+							role="radiogroup"
+							aria-label={kind}
+							className="flex  flex-wrap gap-1.5 font-mono text-xs uppercase tracking-wide">
 							{categoryTags.map((tag) => {
 								const active = activeTags.includes(tag);
 								const c = getTagColor(tag);
@@ -75,18 +84,21 @@ export default function TagFilter({ activeTags, onToggle, onClear }: Props) {
 									<button
 										key={tag}
 										type="button"
-										onClick={() => onToggle(tag)}
-										className={`flex items-center gap-1.5 rounded-sm border px-2.5 py-1 uppercase transition-all  cursor-pointer ${
+										aria-pressed={active}
+										onClick={() => handleSelect(kind, tag)}
+										className={`group flex items-center gap-1.5 rounded-sm border px-2.5 py-1 uppercase transition-all  cursor-pointer ${
 											active
 												? `${c.border} ${c.text} ${c.bg} ${c.shadow} shadow-2xs hover:-translate-y-0.5 hover:translate-x-0.5`
 												: "border-muted/30 text-muted hover:border-muted/60 "
 										}`}>
 										<span
 											className={`h-1.5 w-1.5 rounded-full ${c.dot} transition-opacity ${
-												active ? "opacity-100" : "opacity-0"
+												active
+													? "opacity-100"
+													: "opacity-0 group-hover:opacity-40"
 											}`}
 										/>
-										{formatTag(tag)}
+										{formatTag(tag, kind)}
 									</button>
 								);
 							})}
@@ -94,11 +106,6 @@ export default function TagFilter({ activeTags, onToggle, onClear }: Props) {
 					</div>
 				);
 			})}
-			{/* {tags.map((tag) => {
-				const active = activeTags.includes(tag);
-				const c = getTagColor(tag);
-
-			})} */}
 		</div>
 	);
 }

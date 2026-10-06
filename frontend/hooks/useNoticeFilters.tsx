@@ -26,29 +26,21 @@ export function useNoticeFilters() {
 					params.delete("tags");
 					if (params.get("page")) params.delete("page");
 				}
+				params.delete("page");
 			}
 
 			if (next.page !== undefined) {
 				params.set("page", String(next.page));
 			}
 
-			router.push(`${pathname}?${params.toString()}`, { scroll: false });
+			const qs = params.toString();
+			router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
 		},
 		[router, pathname, searchParams],
 	);
 
-	const toggleTag = useCallback(
-		(tag: string) => {
-			const next = activeTags.includes(tag)
-				? activeTags.filter((t) => t !== tag)
-				: [...activeTags, tag];
-			updateParams({ tags: next });
-		},
-		[activeTags, updateParams],
-	);
-
-	const clearTags = useCallback(
-		() => updateParams({ tags: [] }),
+	const setTags = useCallback(
+		(tags: string[]) => updateParams({ tags }),
 		[updateParams],
 	);
 	const setPage = useCallback(
@@ -56,5 +48,5 @@ export function useNoticeFilters() {
 		[updateParams],
 	);
 
-	return { activeTags, page, toggleTag, clearTags, setPage };
+	return { activeTags, page, setTags, setPage };
 }
