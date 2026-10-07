@@ -1,17 +1,13 @@
 import type { Notice } from "@/types/notice";
-import { isAfter, formatDistanceToNow, subDays, format } from "date-fns";
+import { isToday, isYesterday, format } from "date-fns";
 import TagBadge from "@/components/TagBadge";
 type CardProps = {
 	notice: Notice;
 };
 export default function Card({ notice }: CardProps) {
 	const noticeDate = new Date(notice.published_date);
-
-	const isNoticeRecent: boolean = isAfter(noticeDate, subDays(new Date(), 2));
-
-	const dateDisplay = isNoticeRecent
-		? formatDistanceToNow(noticeDate, { addSuffix: true })
-		: format(noticeDate, "MMM d, yyyy");
+	const isRecent = isToday(noticeDate) || isYesterday(noticeDate);
+	const dateDisplay = format(noticeDate, "MMM d, yyyy");
 
 	return (
 		<a
@@ -20,7 +16,7 @@ export default function Card({ notice }: CardProps) {
 			rel="noopener noreferrer"
 			className="pb-3 flex items-start gap-3 hover:translate-x-1.5 hover:-translate-y-1 transition-transform ">
 			<div className="flex h-6 items-center shrink-0 mt-0.5">
-				{isNoticeRecent ? (
+				{isRecent ? (
 					<span className="relative flex h-3 w-3">
 						<span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pulse/75"></span>
 						<span className="relative inline-flex rounded-full h-3 w-3 bg-pulse"></span>

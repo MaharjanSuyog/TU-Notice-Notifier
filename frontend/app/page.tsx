@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import Card from "@/components/Card";
+import Card from "@/components/NoticeCard";
 import Pagination from "@/components/Pagination";
 import TagFilter from "@/components/TagFilter";
 import { useNoticeFilters } from "@/hooks/useNoticeFilters";
