@@ -7,12 +7,9 @@ import TagFilter from "@/components/TagFilter";
 import { useNoticeFilters } from "@/hooks/useNoticeFilters";
 import { fetchNotices, NoticeResponse } from "@/utils/api";
 import LoginButton from "@/components/LoginButton";
-import { useAuth } from "@/utils/AuthContext";
 
 function NoticeFeed() {
 	const { activeTags, page, setTags, setPage } = useNoticeFilters();
-
-	const { user } = useAuth();
 
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -59,7 +56,7 @@ function NoticeFeed() {
 			</header>
 			<main className="w-4/5 md:w-3/4 flex flex-col gap-10">
 				<span>
-					<h1 className="font-nerko text-7xl md:text-9xl">RECENT NOTICES</h1>
+					<h1 className="font-nerko text-7xl md:text-9xl ">RECENT NOTICES</h1>
 					<span className="font-mono text-muted">watching: iost.tu.edu.np</span>
 				</span>
 

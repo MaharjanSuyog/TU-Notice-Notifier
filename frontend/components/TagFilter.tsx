@@ -66,7 +66,9 @@ export default function TagFilter({ activeTags, onChange }: Props) {
 				const categoryTags = tags[kind];
 				if (categoryTags.length === 0) return null;
 				return (
-					<div key={kind} className="flex items-center gap-x-3 gap-y-2">
+					<div
+						key={kind}
+						className="flex items-start md:items-center-safe gap-x-3 gap-y-2">
 						<div className="flex w-20 shrink-0 items-center gap-2">
 							<p className="font-mono text-xs uppercase tracking-widest text-muted/60">
 								{" "}
