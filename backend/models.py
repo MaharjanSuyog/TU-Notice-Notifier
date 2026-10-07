@@ -124,19 +124,6 @@ class Subscriber(Base):
     )
     program_tag: Mapped[Tag | None] = relationship(foreign_keys=[program_tag_id])
 
-    semester_tag_id: Mapped[int | None] = mapped_column(
-        Integer, ForeignKey("tags.id", ondelete="SET NULL"), nullable=True
-    )
-    semester_tag: Mapped[Tag | None] = relationship(foreign_keys=[semester_tag_id])
-
-    category_tags: Mapped[list[Tag]] = relationship(
-        secondary=subscriber_category_tags, lazy="selectin"
-    )
-
     @property
     def onboarding_complete(self) -> bool:
-        return (
-            self.program_tag_id is not None
-            and self.semester_tag_id is not None
-            and len(self.category_tags) > 0
-        )
+        return self.program_tag_id is not None

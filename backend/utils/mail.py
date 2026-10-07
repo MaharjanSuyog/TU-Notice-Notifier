@@ -3,6 +3,7 @@ import os
 from email.message import EmailMessage
 
 from aiosmtplib import SMTP
+from models import Subscriber
 
 SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_PORT = os.getenv("SMTP_PORT")
@@ -283,6 +284,53 @@ def _build_html(notices: list[dict], unsubscribe_url: str) -> str:
     </body>
     </html>
     """
+
+
+async def send_broadcast(recipents: list[tuple[Subscriber, list[dict]]]) -> dict:
+    if not recipents:
+        return {"sent": 0, "failed": 0}
+    smtp = SMTP(hostname=SMTP_HOST, port=SMTP_PORT, start_tls=True)
+    sent, failed = 0, 0
+
+    try:
+        await smtp.connect()
+        await smtp.login(SMTP_USERNAME, SMTP_PASSWORD)
+
+        for subscriber, notices in recipents:
+            if not notices:
+                continue
+            unsubscribe_url = (
+                f"{SITE_URL}/unsubscribe?token={subscriber.unsubscribe_token}"
+            )
+            subject = (
+                f"New IOST notice: {notices[0]['title']}"
+                if len(notices) == 1
+                else f"{len(notices)} new IOST notices"
+            )
+
+            message = EmailMessage()
+            message["From"] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
+            message["To"] = subscriber.email
+            message["Subject"] = subject
+            message["List-Unsubscribe"] = f"<{unsubscribe_url}>"
+            message["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+            message.set_content("Your email client doesn't support HTML emails")
+            message.add_alternative(
+                _build_html(notices, unsubscribe_url), subtype="html"
+            )
+            try:
+                await smtp.send_message(message)
+                sent += 1
+                print(f"Sent notification to {subscriber.email}")
+            except Exception:
+                failed += 1
+                logger.exception(f"Failed to send to {subscriber.email}")
+                continue
+    except ConnectionRefusedError:
+        logger.exception("Failed to connect to GMAIL SMTP")
+    finally:
+        await smtp.quit()
+    return {"sent": sent, "failed": failed}
 
 
 async def send_notices_email(

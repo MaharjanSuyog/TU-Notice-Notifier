@@ -10,9 +10,10 @@ from models import Notice, Subscriber, Tag
 from redis import Redis
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from utils.classify import classify
-from utils.mail import send_notices_email
+from utils.filtering import subscriber_wants_notice
+from utils.mail import send_broadcast
 
 BASE_URL = "https://iost.tu.edu.np"
 NOTICES_URL = f"{BASE_URL}/notices"
@@ -96,7 +97,9 @@ def get_existing_notice_ids(db: Session, notice_ids: list[list]) -> set[int]:
     return {row[0] for row in rows}
 
 
-def save_new_notices(redis_client: Redis, db: Session, notices: list[dict]):
+def save_new_notices(
+    redis_client: Redis, db: Session, notices: list[dict]
+) -> list[Notice]:
     if not notices:
         return []
 
@@ -196,24 +199,29 @@ async def run_scraper(redis_client: Redis, db: Session):
 
     print(f"Saved {len(saved_posts)} new notice(s)")
 
-    notices_for_email = [
-        {"title": notice.title, "link": urljoin(BASE_URL, notice.href)}
-        for notice in saved_posts
-    ]
+    for notice in saved_posts:
+        db.refresh(notice, attribute_names=["tags"])
 
-    subscribers = db.query(Subscriber).filter(Subscriber.status == "active").all()
-
-    print(f"Sending email to {len(subscribers)} subscriber(s)")
+    subscribers = (
+        db.query(Subscriber)
+        .filter(Subscriber.status == "active")
+        .options(selectinload(Subscriber.program_tag))
+        .all()
+    )
+    recipients: list[tuple[Subscriber, list[dict]]] = []
 
     for subscriber in subscribers:
-        try:
-            await send_notices_email(
-                to_email=subscriber.email,
-                notices=notices_for_email,
-                unsubscribe_token=subscriber.unsubscribe_token,
-            )
-            print(f"Sent notification to {subscriber.email}")
-
-        except Exception as e:
-            print(f"Failed to send notification to {subscriber.email}: {e}")
+        matched = [
+            n for n in saved_posts if subscriber_wants_notice(subscriber, n.tags)
+        ]
+        if matched:
+            notice_dicts = [
+                {"title": n.title, "link": urljoin(BASE_URL, n.href)} for n in matched
+            ]
+            recipients.append((subscriber, notice_dicts))
+    print(
+        f"{len(recipients)} of {len(subscribers)} active subscriber(s) matched filters"
+    )
+    result = await send_broadcast(recipients)
+    print(f"Broadcast done: {result['sent']} sent, {result['failed']} failed")
     return saved_posts
